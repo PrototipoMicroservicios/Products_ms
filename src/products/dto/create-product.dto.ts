@@ -12,6 +12,6 @@ maxDecimalPlaces:4,
 })
 @Min(0)
 @Type(() => Number)
-public price: string;
+public price: number;
 
 }
