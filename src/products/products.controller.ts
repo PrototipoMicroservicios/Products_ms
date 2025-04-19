@@ -13,7 +13,7 @@ export class ProductsController {
     return this.productsService.create(createProductDto);
   }
 
-  //Obtener todos los productos
+  //Obtener todos los productos con paginacion 
   @Get()
   findAll(@Query() paginationdto: PaginationDto) {
     return this.productsService.findAll(paginationdto);
