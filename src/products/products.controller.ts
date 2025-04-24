@@ -18,7 +18,7 @@ export class ProductsController {
   //Obtener todos los productos con paginacion 
 
  //@Get()
- @MessagePattern({cmd: 'find_all'})
+ @MessagePattern({cmd: 'find_all_products'})
   findAll(@Payload() paginationdto: PaginationDto) {
     return this.productsService.findAll(paginationdto);
   }
