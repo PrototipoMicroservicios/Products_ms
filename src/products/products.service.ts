@@ -24,18 +24,18 @@ export class ProductsService extends PrismaClient implements OnModuleInit {
 
   //Paginacion de products page & limit
   async findAll(paginationDto: PaginationDto) {
-    
-    const {page, limit} = paginationDto;
-    const totalPage = await this.product.count({where: {available:true}});
+
+    const { page, limit } = paginationDto;
+    const totalPage = await this.product.count({ where: { available: true } });
     const lastPage = Math.ceil(totalPage / limit);
     const products = await this.product.findMany({
       skip: (page - 1) * limit,
       take: limit,
-      where:{
+      where: {
         available: true
       }
     });
-    
+
     return {
       data: products,
       meta: {
@@ -43,7 +43,7 @@ export class ProductsService extends PrismaClient implements OnModuleInit {
         count: products.length,
         lastPage: lastPage,
         totalPage: totalPage,
-        
+
       }
     }
   }
@@ -53,16 +53,16 @@ export class ProductsService extends PrismaClient implements OnModuleInit {
 
   async findOne(id: number) {
     const product = await this.product.findFirst({
-      where:{ id, available: true }
+      where: { id, available: true }
     });
-    if (!product){
+    if (!product) {
       throw new RpcException({
         message: `Product with id ${id} not found`,
         status: HttpStatus.BAD_REQUEST
       })
 
 
-        
+
     }
     return product;
   }
@@ -73,10 +73,10 @@ export class ProductsService extends PrismaClient implements OnModuleInit {
 
   async update(id: number, updateProductDto: UpdateProductDto) {
 
-    const {id:_, ... data} = updateProductDto;
+    const { id: _, ...data } = updateProductDto;
     await this.findOne(id);
     return this.product.update({
-      where: {id},
+      where: { id },
       data: updateProductDto,
     })
   }
@@ -86,15 +86,36 @@ export class ProductsService extends PrismaClient implements OnModuleInit {
   async remove(id: number) {
     await this.findOne(id);
     //return this.product.delete({
-     // where:{id}
-   // });
+    // where:{id}
+    // });
 
-   const product = await this.product.update({
-    where: {id},
-    data:{
-      available: false
-    }
-   })
-   return product;
+    const product = await this.product.update({
+      where: { id },
+      data: {
+        available: false
+      }
+    })
+    return product;
   }
+
+  async validateProducts(ids: number[]) {
+    ids = Array.from(new Set(ids));
+
+    const products = await this.product.findMany({
+      where: {
+        id: {
+          in: ids
+        }
+      }
+    });
+    if (products.length != ids.length) {
+      throw new RpcException({
+        message: 'Some products were no found',
+        status: HttpStatus.BAD_REQUEST,
+      });
+    }
+    return products;
+  }
+
+
 }
